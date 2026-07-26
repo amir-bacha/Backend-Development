@@ -4,7 +4,7 @@
     res.end('Hello world');
  })
  app.get('/user/:id',(req,res)=>{
-    console.log(req.params);
+    console.log(req.params.id);
     res.end('Hello user');
  })
  app.listen(3000,()=>{
