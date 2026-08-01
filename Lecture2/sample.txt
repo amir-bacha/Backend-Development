@@ -1,0 +1,5 @@
+sync function hashPassword(plainPassword) { 
+const saltRounds = 10; // higher = more secure but slower 
+const hashedPassword = await bcrypt.hash(plainPassword, saltRounds); 
+return hashedPassword; 
+} 
