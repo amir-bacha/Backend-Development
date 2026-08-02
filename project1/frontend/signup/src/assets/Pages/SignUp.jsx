@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios'
 const SignUp = () => {
   const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,15 +18,16 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:3000/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+      const response= await axios.post('http://localhost:3000/api/users/register',formData,{
+        withCredentials: true
       });
-      const data = await res.json();
-      setMessage(data.message);
+      console.log(response.data);
+      setSuccessMessage('User registered successfully!');
+      setFormData({ name: '', email: '', password: '' });
+      
     } catch (error) {
-      setMessage('Something went wrong. Please try again.');
+      console.log('Error occured',error);
+      setMessage('Failed to register user');
     }
   };
 
@@ -34,8 +36,10 @@ const SignUp = () => {
       <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
           Sign Up
+          
         </h1>
-
+        
+          <div className="text-green-600"><p>{successMessage}</p></div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

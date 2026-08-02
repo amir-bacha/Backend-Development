@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import PostCard from './postCard';
 
 const ViewPost = () => {
   const navigate = useNavigate();
@@ -11,26 +13,14 @@ const ViewPost = () => {
     setLoading(true);
     setMessage('');
     try {
-      const token = localStorage.getItem('token');
-
-      const res = await fetch('http://localhost:3000/myposts', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await axios.get('http://localhost:3000/api/posts', {
+        withCredentials: true,
       });
-      const data = await res.json();
-
-      if (res.ok) {
-        setPosts(data.posts);
-        if (data.posts.length === 0) {
-          setMessage('No posts found.');
-        }
-      } else {
-        setMessage(data.message || 'Failed to fetch posts');
-      }
+      console.log(response.data);
+      setPosts(response.data.posts || response.data); // adjust based on your API shape
     } catch (error) {
-      setMessage('Something went wrong. Please try again.');
+      console.log('error while fetching posts: ', error);
+      setMessage('Only logged user can see hist posts');
     } finally {
       setLoading(false);
     }
@@ -38,9 +28,7 @@ const ViewPost = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 px-4 py-10 flex flex-col items-center">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        View Your Posts
-      </h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">View Your Posts</h1>
 
       <button
         onClick={handleGetPosts}
@@ -57,21 +45,11 @@ const ViewPost = () => {
         ← Back to Home
       </button>
 
-      {message && (
-        <p className="text-gray-600 mb-4">{message}</p>
-      )}
+      {message && <p className="text-gray-600 mb-4">{message}</p>}
 
       <div className="w-full max-w-2xl flex flex-col gap-4">
         {posts.map((post) => (
-          <div
-            key={post._id}
-            className="bg-white shadow-md rounded-lg p-6"
-          >
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">
-              {post.title}
-            </h2>
-            <p className="text-gray-600">{post.description}</p>
-          </div>
+          <PostCard key={post._id} title={post.title} description={post.description} />
         ))}
       </div>
     </div>

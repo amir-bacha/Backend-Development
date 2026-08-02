@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 const Post = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -15,28 +15,25 @@ const Post = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-
-      const res = await fetch('http://localhost:3000/post', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
+     try{
+       const response= await axios.post('http://localhost:3000/api/posts', formData,{
+        withCredentials:true,
       });
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessage('Post created successfully!');
-        setFormData({ title: '', description: '' });
-      } else {
-        setMessage(data.message || 'Failed to create post');
-      }
-    } catch (error) {
-      setMessage('Something went wrong. Please try again.');
-    }
+     console.log(response.data);
+     if(response.status===401){
+      setMessage("You should log in first");
+     }
+     setMessage('Post created successfully!');
+     setFormData({ title: '', description: '' });    
+    setTimeout(() => {
+      setMessage('')
+    }, 3000);
+    
+     }
+     catch(error){
+      console.log('error while creating post: ',error);
+      setMessage('Log first then create post');
+     }
   };
 
   return (
@@ -85,7 +82,7 @@ const Post = () => {
           </button>
 
           {message && (
-            <p className="text-center text-sm text-gray-600 mt-2">{message}</p>
+            <p className="text-center text-sm text-green-600 mt-2">{message}</p>
           )}
         </form>
 

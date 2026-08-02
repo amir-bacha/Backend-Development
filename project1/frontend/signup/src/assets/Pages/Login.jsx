@@ -1,8 +1,10 @@
+import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -14,23 +16,42 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:3000/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
+      const response = await axios.post('http://localhost:3000/api/users/login', formData, {
+            withCredentials: true
+        });
+      
+        console.log(response.data.message)
+        if(response.status===200){
+          setSuccessMessage(response.data.message);
+          setFormData({
+            email:"",
+            password:"",
+          })
+        }
+        if(response.status===400){
+          console.log("salam")
+          setSuccessMessage(response.data.message);
+           setFormData({
+            email:"",
+            password:"",
+          })
+        }
+        if(response.status===401){
+           setFormData({
+            email:"",
+            password:"",
+          })
+        }
 
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        setMessage('Login successful!');
-      } else {
-        setMessage(data.message || 'Login failed');
-      }
     } catch (error) {
-      setMessage('Something went wrong. Please try again.');
+      console.log("request error",error)
+      setMessage(error.message);
+      if(error.status===400){
+        setSuccessMessage(error.data)
+      }
     }
   };
 
@@ -40,7 +61,7 @@ const Login = () => {
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
           Login
         </h1>
-
+        <div className="text-green-600"><p>{successMessage}</p></div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
