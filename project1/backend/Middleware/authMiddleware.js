@@ -15,6 +15,7 @@ const verifyToken = (req, res, next) => {
         console.log(error);
         return res.status(401).json({ message: "Token is not valid" });
     }
+    next();
 };
 
 module.exports = { verifyToken };
